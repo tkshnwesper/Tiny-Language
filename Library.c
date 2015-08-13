@@ -4,6 +4,38 @@
 #include <stdio.h>
 #include "Library.h"
 
+char* buffer_to_string(BUF b) {
+    BUF buft = b;
+    char *str;
+    int i, count = 0;
+    if(b == NULL) {
+        str = (char *) malloc(sizeof(char));
+        str[0] = '\0';
+        return str;
+    }
+    while(buft != NULL) {
+        count++;
+        buft = buft->next;
+    }
+    str = (char *) malloc(sizeof(char) * count + 1);
+    buft = b;
+    for(i = 0; i < count; i++) {
+        str[i] = (char) buft->value;
+        buft = buft->next;
+    }
+    str[count] = '\0';
+    return str;
+}
+
+void free_buffer(BUF b) {
+    BUF t;
+    while(b != NULL) {
+        t = b;
+        b = b->next;
+        free(t);
+    }
+}
+
 BUF insert_buffer(BUF first, int val) {
     BUF b, cur = first;
 
@@ -46,7 +78,7 @@ int isInteger(char* name) {
     return 1;
 }
 
-int isVariable(char* name) {
+int isString(char* name) {
     int i;
     int len = strlen(name);
     if(isdigit(name[0])) {
@@ -93,8 +125,8 @@ token_type parse_type(char* name) {
     else if(strcmp(name, ":") == 0) {
         return token_none;
     }
-    else if(isVariable(name)) {
-        return token_variable;
+    else if(isString(name)) {
+        return token_string;
     }
     else if(isInteger(name)) {
         return token_integer;
@@ -105,7 +137,7 @@ token_type parse_type(char* name) {
     }
 }
 
-TOKEN insert_token(TOKEN first, char* name) {
+TOKEN insert_token(TOKEN first, char* name, char* trail) {
     TOKEN b, cur = first;
 
     if(first == NULL) {
@@ -113,6 +145,7 @@ TOKEN insert_token(TOKEN first, char* name) {
         b->next = NULL;
         b->name = name;
         b->type = parse_type(name);
+        b->trail = trail;
         return b;
     }
 
@@ -124,6 +157,7 @@ TOKEN insert_token(TOKEN first, char* name) {
     b->next = NULL;
     b->name = name;
     b->type = parse_type(name);
+    b->trail = trail;
     cur->next = b;
     return first;
 }

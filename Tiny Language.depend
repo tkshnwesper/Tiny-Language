@@ -1,20 +1,20 @@
 # depslib dependency file v1.0
-1439137584 source:/home/saurabh/Code/C/Tiny Language/main.c
+1439388392 source:/home/saurabh/Code/C/Tiny Language/main.c
 	<stdio.h>
 	<stdlib.h>
 	"Library.h"
 	"Scanner.h"
 
-1439232285 source:/home/saurabh/Code/C/Tiny Language/Scanner.c
+1439496886 source:/home/saurabh/Code/C/Tiny Language/Scanner.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
 	<ctype.h>
 	"Library.h"
 
-1439231872 /home/saurabh/Code/C/Tiny Language/Library.h
+1439387938 /home/saurabh/Code/C/Tiny Language/Library.h
 
-1439231408 source:/home/saurabh/Code/C/Tiny Language/Library.c
+1439434987 source:/home/saurabh/Code/C/Tiny Language/Library.c
 	<stdlib.h>
 	<ctype.h>
 	<string.h>
@@ -23,7 +23,7 @@
 
 1439057645 /home/saurabh/Code/C/Tiny Language/Scanner.h
 
-1439137845 source:/home/saurabh/Code/C/Tiny Language/Parser.c
+1439372424 source:/home/saurabh/Code/C/Tiny Language/Parser.c
 	<stdio.h>
 	<stdlib.h>
 	"Library.h"

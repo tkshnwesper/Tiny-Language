@@ -6,49 +6,58 @@
 
 TOKEN ReadFile(const char* filename) {
 
-    BUF b = NULL, buft;
+    BUF b = NULL, trailbuf = NULL;
     TOKEN t = NULL, cur, temp_token;
-    char *str;
-    int count, i, c;
+    char *str, *trail = NULL;
+    int c;
     FILE *f = fopen(filename, "r");
 
     if(f != NULL) {
 
         while((c = fgetc(f)) != EOF) {
-
-            if(!isspace((char) c) && isalnum((char) c)) {
+            if(isalnum(c)) {
+                if(trailbuf != NULL) {
+                    trail = buffer_to_string(trailbuf);
+                    free_buffer(trailbuf);
+                    trailbuf = NULL;
+                }
                 b = insert_buffer(b, c);
             }
-
-            else {
-                // special character
-                if(!isalnum((char) c) && !isspace((char) c)) {
-                    str = (char *) malloc(sizeof(char) * 2);
-                    str[0] = (char) c;
-                    str[1] = '\0';
-                    t = insert_token(t, str);
-                }
-
-                if(b != NULL) {
-                    count = 0;
-                    buft = b;
-                    while(buft != NULL) {
-                        count++;
-                        buft = buft->next;
-                    }
-                    str = (char *) malloc(sizeof(char) * count + 1);
-                    buft = b;
-                    for(i = 0; i < count; i++) {
-                        str[i] = (char) buft->value;
-                        buft = buft->next;
-                    }
-                    str[count] = '\0';
-                    t = insert_token(t, str);
-                    free(b);
+            // special character
+            else if(!isalpha(c) && !isspace(c)) {
+                if(trail != NULL) {
+                    str = buffer_to_string(b);
+                    free_buffer(b);
                     b = NULL;
+                    t = insert_token(t, str, trail);
+                    trail = NULL;
                 }
-            }
+                trail = buffer_to_string(trailbuf);
+                free_buffer(trailbuf);
+                trailbuf = NULL;
+                str = (char *) malloc(sizeof(char) * 2);
+                str[0] = (char) c;
+                str[1] = '\0';
+                t = insert_token(t, str, trail);
+                trail = NULL;
 
+            }
+            // whitespace
+            else {
+                if(b != NULL) {
+                    if(trail == NULL) {
+                        trail = buffer_to_string(trailbuf);
+                        free_buffer(trailbuf);
+                        trailbuf = NULL;
+                    }
+                    str = buffer_to_string(b);
+                    free_buffer(b);
+                    b = NULL;
+                    t = insert_token(t, str, trail);
+                    trail = NULL;
+                }
+                trailbuf = insert_buffer(trailbuf, c);
+            }
         }
 
     }
@@ -56,6 +65,17 @@ TOKEN ReadFile(const char* filename) {
     else {
         printf("There was a problem with opening the file.\n");
         exit(1);
+    }
+
+    // handles characters remaining in buffer
+    if(b != NULL) {
+        trail = buffer_to_string(trailbuf);
+        free_buffer(trailbuf);
+        trailbuf = NULL;
+        str = buffer_to_string(b);
+        free_buffer(b);
+        b = NULL;
+        t = insert_token(t, str, trail);
     }
 
     fclose(f);
@@ -68,6 +88,7 @@ TOKEN ReadFile(const char* filename) {
         if(strcmp(cur->name, ":") == 0 && strcmp(cur->next->name, "=") == 0) {
             temp_token = cur->next->next;
             free(cur->next->name);
+            free(cur->next->trail);
             free(cur->next);
             cur->type = token_assignment;
             free(cur->name);

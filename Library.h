@@ -2,12 +2,12 @@
 #define LIBRARY_H_INCLUDED
 
 typedef enum token_type {
-    token_keyword,
+//    token_keyword,
     token_arithmatic,
     token_logical,
-    token_variable,
-    token_integer,
     token_string,
+    token_integer,
+//    token_string,
     token_terminator,
     token_assignment,
     token_none
@@ -17,6 +17,7 @@ typedef enum token_type {
 
 typedef struct token {
     char* name;
+    char* trail;
     struct token* next;
     token_type type;
 } token, *TOKEN;
@@ -36,10 +37,18 @@ typedef struct buffer {
 typedef enum node_type {
     node_variable,
     node_integer,
-    node_logical,
-    node_arithmatic,
+    // logical
+    node_equal,
+    node_greater,
+    node_lesser,
+    // arithmatic
+    node_add,
+    node_subtract,
+    node_multiply,
+    node_divide,
+    // assignment
     node_assignment
-};
+} node_type;
 
 typedef struct node {
     struct node* next;
@@ -50,8 +59,12 @@ typedef struct tree {
     NODE root;
 } tree, *TREE;
 
+void free_buffer(BUF);
+
+char* buffer_to_string(BUF);
+
 BUF insert_buffer(BUF first, int val);
 
-TOKEN insert_token(TOKEN first, char* name);
+TOKEN insert_token(TOKEN first, char* name, char* trail);
 
 #endif // LIBRARY_H_INCLUDED

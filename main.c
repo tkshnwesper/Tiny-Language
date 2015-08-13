@@ -4,7 +4,11 @@
 #include "Scanner.h"
 
 int main() {
-    TOKEN t = ReadFile("/home/saurabh/Code/Tiny/hello.t");
-    printf("%s", t->next->name);
+    TOKEN cur, t = ReadFile("/home/saurabh/Code/Tiny/hello.t");
+    cur = t;
+    while(cur != NULL) {
+        printf("%s%s", cur->trail, cur->name);
+        cur = cur->next;
+    }
     return 0;
 }
