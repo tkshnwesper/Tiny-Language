@@ -1,0 +1,3 @@
+test //test:tiny-compiler-tests --test_output all
+build //main:tiny-compiler
+run //main:tiny-compiler
