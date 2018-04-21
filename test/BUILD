@@ -4,5 +4,6 @@ cc_test(
   deps = [
     "//main:Library",
     "@unity"
-  ]
+  ],
+  timeout = "short"
 )
