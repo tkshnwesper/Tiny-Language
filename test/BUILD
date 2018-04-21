@@ -3,6 +3,6 @@ cc_test(
   srcs = glob(["**/*.c"]),
   deps = [
     "//main:Library",
-    "@munit"
+    "@unity"
   ]
 )

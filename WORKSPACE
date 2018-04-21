@@ -1,6 +1,6 @@
 new_git_repository(
-  name = "munit",
-  build_file = "munit.BUILD",
-  remote = "https://github.com/nemequ/munit.git",
-  tag = "v0.2.0"
+  name = "unity",
+  build_file = "unity.BUILD",
+  remote = "https://github.com/ThrowTheSwitch/Unity",
+  tag = "v2.4.3"
 )
