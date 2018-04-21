@@ -3,6 +3,7 @@ cc_library(
   name = "Library",
   srcs = ["Library.c"],
   hdrs = ["Library.h"],
+  visibility = ["//test:__pkg__"]
 )
 
 # https://docs.bazel.build/versions/master/be/c-cpp.html#cc_library
@@ -12,7 +13,7 @@ cc_library(
   hdrs = ["Parser.h"],
   deps = [
     ":Library"
-  ]
+  ],
 )
 
 # https://docs.bazel.build/versions/master/be/c-cpp.html#cc_library
@@ -22,7 +23,7 @@ cc_library(
   hdrs = ["Scanner.h"],
   deps = [
     ":Library"
-  ]
+  ],
 )
 
 cc_binary(
