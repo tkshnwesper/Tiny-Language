@@ -3,7 +3,8 @@ cc_test(
   srcs = glob(["**/*.c"]),
   deps = [
     "//main:Library",
-    "@unity"
+    "@unity",
+    "//main:interpret"
   ],
   timeout = "short"
 )

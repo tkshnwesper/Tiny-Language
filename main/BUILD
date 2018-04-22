@@ -26,6 +26,14 @@ cc_library(
   ],
 )
 
+# https://docs.bazel.build/versions/master/be/c-cpp.html#cc_library
+cc_library(
+  name = "interpret",
+  srcs = ["interpret.c"],
+  hdrs = ["interpret.h"],
+  visibility = ["//test:__pkg__"]
+)
+
 cc_binary(
   name = "tiny-compiler",
   srcs = ["main.c"],
