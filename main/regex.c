@@ -2,5 +2,10 @@
 #include "regex.h"
 
 char *match(char *string, char *pattern) {
-  return NULL;
+  if (string == NULL) return NULL;
+  if (pattern == NULL) return "";
+  if (strlen(string) == 0) {
+    return "";
+  }
+  return pattern;
 }
