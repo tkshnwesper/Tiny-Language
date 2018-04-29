@@ -1,10 +1,20 @@
 cc_test(
-  name = "tiny-compiler-tests",
-  srcs = glob(["**/*.c"]),
+  name = "interpret_test",
+  srcs = ["interpret_test.c"],
   deps = [
-    "//main:Library",
     "@unity",
-    "//main:interpret"
+    "//main:interpret",
+    "//main:node",
+  ],
+  timeout = "short"
+)
+
+cc_test(
+  name = "regex_test",
+  srcs = ["regex_test.c"],
+  deps = [
+    "@unity",    
+    "//main:regex"
   ],
   timeout = "short"
 )
