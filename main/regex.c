@@ -52,6 +52,7 @@ int append_on_match(char **result, char *string, char letter, int i, PROPERTIES 
     - props->paren_end
     - props->escaped_character_count
     - props->square_count
+    - props->square_start
     - props->square_end
   ] == letter) {
     *result = append_to_result(*result, letter);
@@ -106,7 +107,7 @@ void loop_for_your_own_good(char *string, char *pattern, char **result, PROPERTI
             break;
           }
           props->found_in_square = append_on_match(result, string, pattern[i], i, props);
-          props->square_count++;
+          break;
         }
         if (props->escape && i < pattern_len - 1) {
           *result = append_to_result(*result, pattern[i - 1]);

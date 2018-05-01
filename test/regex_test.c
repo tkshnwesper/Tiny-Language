@@ -77,6 +77,10 @@ void should_match_the_one_character_between_square_brackets() {
   TEST_ASSERT_EQUAL_STRING("lol", match("lol", "l[o]l"));
 }
 
+void should_match_either_one_character_between_square_brackets() {
+  TEST_ASSERT_EQUAL_STRING("lol", match("lol", "l[ou]l"));
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(should_return_null_when_source_is_null);
@@ -98,5 +102,6 @@ int main() {
   RUN_TEST(should_return_single_backslash_when_two_backslashes_are_in_pattern);
   RUN_TEST(should_be_able_to_escape_dollar_sign);
   RUN_TEST(should_match_the_one_character_between_square_brackets);
+  RUN_TEST(should_match_either_one_character_between_square_brackets);
   return UNITY_END();
 }
