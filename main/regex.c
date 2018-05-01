@@ -5,8 +5,8 @@
 
 #define ESCAPE_HANDLING_MECHANISM \
 if (props->escape) {\
-  escape_consequences(&props->escape, &escaped_character_count);\
-  append_on_match(result, string, pattern[i], i, props, escaped_character_count);\
+  escape_consequences(&props->escape, &props->escaped_character_count);\
+  append_on_match(result, string, pattern[i], i, props);\
 }
 
 typedef struct properties {
@@ -15,6 +15,9 @@ typedef struct properties {
   int escape;
   int dollar;
   int caret;
+  int square_start;
+  int square_end;
+  int escaped_character_count;
 } properties, *PROPERTIES;
 
 char *append_to_result(char *result, char appendee) {
@@ -40,8 +43,8 @@ void escape_consequences(int *escape, int *count) {
   }
 }
 
-int append_on_match(char **result, char *string, char letter, int i, PROPERTIES props, int count) {
-  if (string[i - props->paren_start - props->paren_end - count] == letter) {
+int append_on_match(char **result, char *string, char letter, int i, PROPERTIES props) {
+  if (string[i - props->paren_start - props->paren_end - props->escaped_character_count] == letter) {
     *result = append_to_result(*result, letter);
     return 1;
   }
@@ -49,13 +52,18 @@ int append_on_match(char **result, char *string, char letter, int i, PROPERTIES 
 }
 
 void loop_for_your_own_good(char *string, char *pattern, char **result, PROPERTIES props) {
-  int escaped_character_count = 0;
-  for (int i = 0; i < strlen(pattern); i++) {
+  props->escaped_character_count = 0;
+  int found_in_square = 0;
+  int pattern_len = strlen(pattern);
+  for (int i = 0; i < pattern_len; i++) {
     int no_hope_left = 0;
     switch (pattern[i]) {
-      case '\\':
-        props->escape = 1;
+      case '\\': {
+        ESCAPE_HANDLING_MECHANISM else {
+          props->escape = 1;
+        }
         break;
+      }
       case '(': {
         ESCAPE_HANDLING_MECHANISM else {
           props->paren_start = 1;
@@ -68,12 +76,24 @@ void loop_for_your_own_good(char *string, char *pattern, char **result, PROPERTI
         }
         break;
       }
+      case '[': {
+        ESCAPE_HANDLING_MECHANISM else {
+          props->square_start = 1;
+        }
+        break;
+      }
+      case ']': {
+        ESCAPE_HANDLING_MECHANISM else {
+          props->square_end = 1;
+        }
+        break;
+      }
       default: {
-        if (props->escape) {
+        if (props->escape && i < pattern_len - 1) {
           *result = append_to_result(*result, pattern[i - 1]);
           props->escape = 0;
         }
-        if (!append_on_match(result, string, pattern[i], i, props, escaped_character_count)) {
+        if (!append_on_match(result, string, pattern[i], i, props)) {
           no_hope_left = 1;
           if (*result != NULL) {
             free(*result);
@@ -96,6 +116,9 @@ char *match(char *string, char *pattern) {
   props.escape = 0;
   props.dollar = pattern[strlen(pattern) - 1] == '$';
   props.caret = pattern[0] == '^';
+  props.square_start = 0;
+  props.square_end = 0;
+  props.escaped_character_count = 0;
   if (props.dollar) {
     char *dup = strdup(pattern);
     dup[strlen(dup) - 1] = '\0';
@@ -112,6 +135,7 @@ char *match(char *string, char *pattern) {
     } while (*(++partial) != '\0');
   }
   if (result != NULL && props.dollar) {
+    if (props.escape) return append_to_result(result, '$');
     char *partial = string;
     int verified = 0;
     while(partial != '\0' && (partial = strstr(partial, result)) != NULL) {

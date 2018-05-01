@@ -65,6 +65,18 @@ void should_not_consider_backslash_as_escape_when_not_preceeding_a_special_chara
   TEST_ASSERT_EQUAL_STRING("\\me", match("\\meow", "^\\me"));
 }
 
+void should_return_single_backslash_when_two_backslashes_are_in_pattern() {
+  TEST_ASSERT_EQUAL_STRING("\\", match("\\", "\\\\"));
+}
+
+void should_be_able_to_escape_dollar_sign() {
+  TEST_ASSERT_EQUAL_STRING("\\$", match("\\$", "\\\\\\$"));  
+}
+
+void should_match_the_one_character_between_square_brackets() {
+  TEST_ASSERT_EQUAL_STRING("lol", match("lol", "l[o]l"));
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(should_return_null_when_source_is_null);
@@ -83,5 +95,8 @@ int main() {
   RUN_TEST(should_compare_from_end_when_dollar_symbol_is_at_end);
   RUN_TEST(should_not_match_if_dollar_symbol_is_at_end_but_pattern_does_not_match_from_end);
   RUN_TEST(should_not_consider_backslash_as_escape_when_not_preceeding_a_special_character);
+  RUN_TEST(should_return_single_backslash_when_two_backslashes_are_in_pattern);
+  RUN_TEST(should_be_able_to_escape_dollar_sign);
+  RUN_TEST(should_match_the_one_character_between_square_brackets);
   return UNITY_END();
 }
