@@ -3,6 +3,12 @@
 #include <stdlib.h>
 #include "regex.h"
 
+#define ESCAPE_HANDLING_MECHANISM \
+if (props->escape) {\
+  escape_consequences(&props->escape, &escaped_character_count);\
+  append_on_match(result, string, pattern[i], i, props, escaped_character_count);\
+}
+
 typedef struct properties {
   int paren_start;
   int paren_end;
@@ -27,9 +33,10 @@ char *append_to_result(char *result, char appendee) {
   return new_result;
 }
 
-void escape_consequences(int *escape) {
+void escape_consequences(int *escape, int *count) {
   if (*escape) {
     *escape = 0;
+    (*count)++;
   }
 }
 
@@ -48,27 +55,24 @@ void loop_for_your_own_good(char *string, char *pattern, char **result, PROPERTI
     switch (pattern[i]) {
       case '\\':
         props->escape = 1;
-        escaped_character_count++;
         break;
       case '(': {
-        if (props->escape) {
-          escape_consequences(&props->escape);
-          append_on_match(result, string, pattern[i], i, props, escaped_character_count);
-        } else {
+        ESCAPE_HANDLING_MECHANISM else {
           props->paren_start = 1;
         }
         break;
       }
       case ')': {
-        if (props->escape) {
-          escape_consequences(&props->escape);
-          append_on_match(result, string, pattern[i], i, props, escaped_character_count);
-        } else {
+        ESCAPE_HANDLING_MECHANISM else {
           props->paren_end = 1;
         }
         break;
       }
       default: {
+        if (props->escape) {
+          *result = append_to_result(*result, pattern[i - 1]);
+          props->escape = 0;
+        }
         if (!append_on_match(result, string, pattern[i], i, props, escaped_character_count)) {
           no_hope_left = 1;
           if (*result != NULL) {

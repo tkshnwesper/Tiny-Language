@@ -61,6 +61,10 @@ void should_not_match_if_dollar_symbol_is_at_end_but_pattern_does_not_match_from
   TEST_ASSERT_NULL(match("meow", "me$"));
 }
 
+void should_not_consider_backslash_as_escape_when_not_preceeding_a_special_character() {
+  TEST_ASSERT_EQUAL_STRING("\\me", match("\\meow", "^\\me"));
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(should_return_null_when_source_is_null);
@@ -78,5 +82,6 @@ int main() {
   RUN_TEST(should_not_match_if_caret_symbol_is_at_start_but_pattern_does_not_match_from_beginning);
   RUN_TEST(should_compare_from_end_when_dollar_symbol_is_at_end);
   RUN_TEST(should_not_match_if_dollar_symbol_is_at_end_but_pattern_does_not_match_from_end);
+  RUN_TEST(should_not_consider_backslash_as_escape_when_not_preceeding_a_special_character);
   return UNITY_END();
 }
