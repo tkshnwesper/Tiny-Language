@@ -85,6 +85,14 @@ void should_match_on_multiple_square_brackets() {
   TEST_ASSERT_EQUAL_STRING("lohl", match("lohl", "l[ou][ah]l"));  
 }
 
+void should_return_content_within_parentheses_when_combined_with_square_brackets() {
+  TEST_ASSERT_EQUAL_STRING("h", match("oh", "[ou]([ah])"));  
+}
+
+void should_return_content_within_parentheses_when_combined_with_square_brackets_from_beginning() {
+  TEST_ASSERT_EQUAL_STRING("o", match("oh", "([ou])[ah]"));
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(should_return_null_when_source_is_null);
@@ -108,5 +116,7 @@ int main() {
   RUN_TEST(should_match_the_one_character_between_square_brackets);
   RUN_TEST(should_match_either_one_character_between_square_brackets);
   RUN_TEST(should_match_on_multiple_square_brackets);
+  RUN_TEST(should_return_content_within_parentheses_when_combined_with_square_brackets);
+  RUN_TEST(should_return_content_within_parentheses_when_combined_with_square_brackets_from_beginning);
   return UNITY_END();
 }

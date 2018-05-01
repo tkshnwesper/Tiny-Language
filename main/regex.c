@@ -9,12 +9,30 @@ if (props->escape) {\
   append_on_match(result, string, pattern[i], i, props);\
 }
 
-#define CLEANUP_RESULT \
+#define CLEANUP \
 if (*result != NULL) {\
   free(*result);\
   *result = NULL;\
 }\
-return;
+if (pre_paren != NULL) {\
+  free(pre_paren);\
+}\
+if (post_paren != NULL) {\
+  free(post_paren);\
+}\
+if (between_paren != NULL) {\
+  free(between_paren);\
+}
+
+#define CLEANUP_RESULT_WITHOUT_RETURN \
+if (*result != NULL) {\
+  free(*result);\
+  *result = NULL;\
+}
+
+// #define MAKE_EMPTY_STRING strdup("")
+
+#define DUPLICATE_RESULT *result != NULL ? strdup(*result) : strdup("");
 
 typedef struct properties {
   int paren_start;
@@ -60,7 +78,6 @@ int append_on_match(char **result, char *string, char letter, int i, PROPERTIES 
     - props->escaped_character_count
     - props->square_count
     - props->square_start
-    // - props->square_end
   ] == letter) {
     *result = append_to_result(*result, letter);
     return 1;
@@ -69,6 +86,8 @@ int append_on_match(char **result, char *string, char letter, int i, PROPERTIES 
 }
 
 void loop_for_your_own_good(char *string, char *pattern, char **result, PROPERTIES props) {
+  char *pre_paren, *post_paren, *between_paren;
+  pre_paren = post_paren = between_paren = NULL;
   props->escaped_character_count = 0;
   props->found_in_square = 0;  
   props->square_count = 0;
@@ -84,12 +103,16 @@ void loop_for_your_own_good(char *string, char *pattern, char **result, PROPERTI
       case '(': {
         ESCAPE_HANDLING_MECHANISM else {
           props->paren_start = 1;
+          pre_paren = DUPLICATE_RESULT
+          CLEANUP_RESULT_WITHOUT_RETURN
         }
         break;
       }
       case ')': {
         ESCAPE_HANDLING_MECHANISM else {
           props->paren_end = 1;
+          between_paren = DUPLICATE_RESULT
+          CLEANUP_RESULT_WITHOUT_RETURN
         }
         break;
       }
@@ -102,7 +125,8 @@ void loop_for_your_own_good(char *string, char *pattern, char **result, PROPERTI
       case ']': {
         ESCAPE_HANDLING_MECHANISM else {
           if (!props->found_in_square) {
-            CLEANUP_RESULT
+            CLEANUP
+            return;
           }
           props->square_end++;
           props->found_in_square = 0;
@@ -122,11 +146,17 @@ void loop_for_your_own_good(char *string, char *pattern, char **result, PROPERTI
           props->escape = 0;
         }
         if (!append_on_match(result, string, pattern[i], i, props)) {
-          CLEANUP_RESULT
+          CLEANUP
+          return;
         }
       }
     }
   }
+  char *for_returning = NULL;
+  if (props->paren_start && props->paren_end && between_paren != NULL) for_returning = strdup(between_paren);
+  else if (props->paren_start && !props->paren_end) { CLEANUP_RESULT_WITHOUT_RETURN return; }
+  else return;
+  *result = for_returning;
 }
 
 char *match(char *string, char *pattern) {
