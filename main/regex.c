@@ -9,6 +9,13 @@ if (props->escape) {\
   append_on_match(result, string, pattern[i], i, props);\
 }
 
+#define CLEANUP_RESULT \
+if (*result != NULL) {\
+  free(*result);\
+  *result = NULL;\
+}\
+return;
+
 typedef struct properties {
   int paren_start;
   int paren_end;
@@ -53,7 +60,7 @@ int append_on_match(char **result, char *string, char letter, int i, PROPERTIES 
     - props->escaped_character_count
     - props->square_count
     - props->square_start
-    - props->square_end
+    // - props->square_end
   ] == letter) {
     *result = append_to_result(*result, letter);
     return 1;
@@ -67,7 +74,6 @@ void loop_for_your_own_good(char *string, char *pattern, char **result, PROPERTI
   props->square_count = 0;
   int pattern_len = strlen(pattern);
   for (int i = 0; i < pattern_len; i++) {
-    int no_hope_left = 0;
     switch (pattern[i]) {
       case '\\': {
         ESCAPE_HANDLING_MECHANISM else {
@@ -95,6 +101,9 @@ void loop_for_your_own_good(char *string, char *pattern, char **result, PROPERTI
       }
       case ']': {
         ESCAPE_HANDLING_MECHANISM else {
+          if (!props->found_in_square) {
+            CLEANUP_RESULT
+          }
           props->square_end++;
           props->found_in_square = 0;
         }
@@ -102,11 +111,10 @@ void loop_for_your_own_good(char *string, char *pattern, char **result, PROPERTI
       }
       default: {
         if (props->square_start != props->square_end) {
-          if (props->found_in_square) {
-            props->square_count++;
-            break;
+          if (!props->found_in_square) {
+            props->found_in_square = append_on_match(result, string, pattern[i], i, props);
           }
-          props->found_in_square = append_on_match(result, string, pattern[i], i, props);
+          props->square_count++;
           break;
         }
         if (props->escape && i < pattern_len - 1) {
@@ -114,16 +122,10 @@ void loop_for_your_own_good(char *string, char *pattern, char **result, PROPERTI
           props->escape = 0;
         }
         if (!append_on_match(result, string, pattern[i], i, props)) {
-          no_hope_left = 1;
-          if (*result != NULL) {
-            free(*result);
-            *result = NULL;
-          }
-          break;
+          CLEANUP_RESULT
         }
       }
     }
-    if (no_hope_left) break;
   }
 }
 
