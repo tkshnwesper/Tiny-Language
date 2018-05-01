@@ -18,6 +18,8 @@ typedef struct properties {
   int square_start;
   int square_end;
   int escaped_character_count;
+  int square_count;
+  int found_in_square;
 } properties, *PROPERTIES;
 
 char *append_to_result(char *result, char appendee) {
@@ -44,7 +46,14 @@ void escape_consequences(int *escape, int *count) {
 }
 
 int append_on_match(char **result, char *string, char letter, int i, PROPERTIES props) {
-  if (string[i - props->paren_start - props->paren_end - props->escaped_character_count] == letter) {
+  if (string[
+    i
+    - props->paren_start
+    - props->paren_end
+    - props->escaped_character_count
+    - props->square_count
+    - props->square_end
+  ] == letter) {
     *result = append_to_result(*result, letter);
     return 1;
   }
@@ -53,7 +62,8 @@ int append_on_match(char **result, char *string, char letter, int i, PROPERTIES 
 
 void loop_for_your_own_good(char *string, char *pattern, char **result, PROPERTIES props) {
   props->escaped_character_count = 0;
-  int found_in_square = 0;
+  props->found_in_square = 0;  
+  props->square_count = 0;
   int pattern_len = strlen(pattern);
   for (int i = 0; i < pattern_len; i++) {
     int no_hope_left = 0;
@@ -78,17 +88,26 @@ void loop_for_your_own_good(char *string, char *pattern, char **result, PROPERTI
       }
       case '[': {
         ESCAPE_HANDLING_MECHANISM else {
-          props->square_start = 1;
+          props->square_start++;
         }
         break;
       }
       case ']': {
         ESCAPE_HANDLING_MECHANISM else {
-          props->square_end = 1;
+          props->square_end++;
+          props->found_in_square = 0;
         }
         break;
       }
       default: {
+        if (props->square_start != props->square_end) {
+          if (props->found_in_square) {
+            props->square_count++;
+            break;
+          }
+          props->found_in_square = append_on_match(result, string, pattern[i], i, props);
+          props->square_count++;
+        }
         if (props->escape && i < pattern_len - 1) {
           *result = append_to_result(*result, pattern[i - 1]);
           props->escape = 0;
@@ -119,6 +138,8 @@ char *match(char *string, char *pattern) {
   props.square_start = 0;
   props.square_end = 0;
   props.escaped_character_count = 0;
+  props.square_count = 0;
+  props.found_in_square = 0;
   if (props.dollar) {
     char *dup = strdup(pattern);
     dup[strlen(dup) - 1] = '\0';
