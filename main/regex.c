@@ -30,8 +30,6 @@ if (*result != NULL) {\
   *result = NULL;\
 }
 
-// #define MAKE_EMPTY_STRING strdup("")
-
 #define DUPLICATE_RESULT *result != NULL ? strdup(*result) : strdup("");
 
 typedef struct properties {
